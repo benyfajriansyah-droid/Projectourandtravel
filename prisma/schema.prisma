@@ -1,0 +1,147 @@
+// Prisma schema — internal tour & travel ops app
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  FINANCE
+  SALES
+  OPERASIONAL
+}
+
+enum TripType {
+  OPEN_TRIP
+  PRIVATE
+}
+
+enum DepartureStatus {
+  PLANNING
+  CONFIRMED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum CostCategory {
+  TRANSPORT
+  AKOMODASI
+  KONSUMSI
+  GUIDE
+  TIKET_MASUK
+  LAINNYA
+}
+
+enum CostUnit {
+  FLAT
+  PER_PAX
+}
+
+enum PaymentStatus {
+  DP
+  LUNAS
+  CANCELLED
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum VendorCategory {
+  HOTEL
+  TRANSPORT
+  KONSUMSI
+  GUIDE
+  LAINNYA
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(SALES)
+  createdAt    DateTime @default(now())
+}
+
+model Trip {
+  id           String      @id @default(cuid())
+  name         String
+  type         TripType
+  destination  String
+  durationDays Int
+  description  String?
+  createdAt    DateTime    @default(now())
+  departures   Departure[]
+}
+
+model Departure {
+  id             String          @id @default(cuid())
+  trip           Trip            @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripId         String
+  departureDate  DateTime
+  returnDate     DateTime
+  minPax         Int
+  maxPax         Int
+  pricePerPax    Float
+  status         DepartureStatus @default(PLANNING)
+  createdAt      DateTime        @default(now())
+  costComponents CostComponent[]
+  participants   Participant[]
+  payments       Payment[]
+}
+
+model CostComponent {
+  id          String       @id @default(cuid())
+  departure   Departure    @relation(fields: [departureId], references: [id], onDelete: Cascade)
+  departureId String
+  category    CostCategory
+  name        String
+  amount      Float
+  unit        CostUnit
+  qty         Int          @default(1)
+  createdAt   DateTime     @default(now())
+}
+
+model Participant {
+  id               String        @id @default(cuid())
+  departure        Departure     @relation(fields: [departureId], references: [id], onDelete: Cascade)
+  departureId      String
+  name             String
+  phone            String
+  idNumber         String?
+  emergencyContact String?
+  paymentStatus    PaymentStatus @default(DP)
+  createdAt        DateTime      @default(now())
+  payments         Payment[]
+}
+
+model Payment {
+  id            String          @id @default(cuid())
+  departure     Departure?      @relation(fields: [departureId], references: [id], onDelete: Cascade)
+  departureId   String?
+  participant   Participant?    @relation(fields: [participantId], references: [id], onDelete: SetNull)
+  participantId String?
+  type          TransactionType
+  amount        Float
+  date          DateTime
+  method        String?
+  category      String?
+  note          String?
+  createdAt     DateTime        @default(now())
+}
+
+model Vendor {
+  id       String         @id @default(cuid())
+  name     String
+  category VendorCategory
+  contact  String?
+  note     String?
+}
