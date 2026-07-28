@@ -228,7 +228,14 @@ export default async function KeuanganPage({
                 <TableCell>{p.departure ? p.departure.trip.name : "Umum"}</TableCell>
                 <TableCell>{formatCurrency(p.amount)}</TableCell>
                 <TableCell>{p.note ?? "—"}</TableCell>
-                <TableCell>
+                <TableCell className="flex items-center gap-1">
+                  {p.type === "INCOME" && (
+                    <Link href={`/api/kwitansi/${p.id}`} target="_blank">
+                      <Button type="button" variant="outline" size="sm">
+                        Cetak Kwitansi
+                      </Button>
+                    </Link>
+                  )}
                   <form action={deletePayment}>
                     <input type="hidden" name="id" value={p.id} />
                     <input
