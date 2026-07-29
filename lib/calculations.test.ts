@@ -63,4 +63,16 @@ describe("calculateCostSummary", () => {
     );
     expect(summary.bepPax).toBeNull();
   });
+
+  it("returns null margin/BEP when price has not been set yet", () => {
+    const summary = calculateCostSummary(
+      [{ amount: 1_000_000, qty: 1, unit: "FLAT" }],
+      10,
+      null
+    );
+    expect(summary.costPerPax).toBe(100_000);
+    expect(summary.marginPerPax).toBeNull();
+    expect(summary.marginTotal).toBeNull();
+    expect(summary.bepPax).toBeNull();
+  });
 });

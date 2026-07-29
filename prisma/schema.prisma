@@ -90,7 +90,7 @@ model Departure {
   returnDate     DateTime
   minPax         Int
   maxPax         Int
-  pricePerPax    Float
+  pricePerPax    Float?
   status         DepartureStatus @default(PLANNING)
   createdAt      DateTime        @default(now())
   costComponents CostComponent[]

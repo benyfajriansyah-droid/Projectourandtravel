@@ -11,16 +11,16 @@ export interface CostSummary {
   totalPerPaxUnit: number;
   hpp: number;
   costPerPax: number;
-  pricePerPax: number;
-  marginPerPax: number;
-  marginTotal: number;
+  pricePerPax: number | null;
+  marginPerPax: number | null;
+  marginTotal: number | null;
   bepPax: number | null;
 }
 
 export function calculateCostSummary(
   components: CostComponentInput[],
   actualPax: number,
-  pricePerPax: number
+  pricePerPax: number | null
 ): CostSummary {
   const totalFlat = components
     .filter((c) => c.unit === "FLAT")
@@ -33,11 +33,16 @@ export function calculateCostSummary(
   const pax = Math.max(actualPax, 0);
   const hpp = totalFlat + totalPerPaxUnit * pax;
   const costPerPax = pax > 0 ? hpp / pax : 0;
-  const marginPerPax = pricePerPax - costPerPax;
-  const marginTotal = marginPerPax * pax;
 
-  const contributionPerPax = pricePerPax - totalPerPaxUnit;
-  const bepPax = contributionPerPax > 0 ? totalFlat / contributionPerPax : null;
+  const marginPerPax = pricePerPax === null ? null : pricePerPax - costPerPax;
+  const marginTotal = marginPerPax === null ? null : marginPerPax * pax;
+
+  const contributionPerPax =
+    pricePerPax === null ? null : pricePerPax - totalPerPaxUnit;
+  const bepPax =
+    contributionPerPax !== null && contributionPerPax > 0
+      ? totalFlat / contributionPerPax
+      : null;
 
   return {
     totalFlat,

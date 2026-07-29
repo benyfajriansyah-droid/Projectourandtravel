@@ -24,10 +24,6 @@ export function DepartureForm({ tripId }: { tripId: string }) {
         <Input id="returnDate" name="returnDate" type="date" required />
       </div>
       <div className="space-y-1">
-        <Label htmlFor="pricePerPax">Harga/Peserta (Rp)</Label>
-        <Input id="pricePerPax" name="pricePerPax" type="number" min={0} required />
-      </div>
-      <div className="space-y-1">
         <Label htmlFor="minPax">Min Peserta</Label>
         <Input id="minPax" name="minPax" type="number" min={1} required />
       </div>

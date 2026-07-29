@@ -81,7 +81,10 @@ export default async function TripDetailPage({
                     </p>
                     <p className="text-xs text-neutral-500">
                       {dep._count.participants}/{dep.maxPax} peserta (min{" "}
-                      {dep.minPax}) &middot; {formatCurrency(dep.pricePerPax)}/pax
+                      {dep.minPax}) &middot;{" "}
+                      {dep.pricePerPax === null
+                        ? "Harga belum diisi"
+                        : `${formatCurrency(dep.pricePerPax)}/pax`}
                     </p>
                   </div>
                   <Badge variant={DEPARTURE_STATUS_BADGE[dep.status]}>

@@ -54,16 +54,12 @@ export async function createDeparture(
   const returnDate = String(formData.get("returnDate") ?? "");
   const minPax = Number(formData.get("minPax") ?? 0);
   const maxPax = Number(formData.get("maxPax") ?? 0);
-  const pricePerPax = Number(formData.get("pricePerPax") ?? 0);
 
   if (!tripId || !departureDate || !returnDate) {
     return { error: "Tanggal keberangkatan & kepulangan wajib diisi." };
   }
   if (minPax < 1 || maxPax < minPax) {
     return { error: "Jumlah peserta min/maks tidak valid." };
-  }
-  if (pricePerPax < 0) {
-    return { error: "Harga per peserta tidak valid." };
   }
 
   await prisma.departure.create({
@@ -73,7 +69,6 @@ export async function createDeparture(
       returnDate: new Date(returnDate),
       minPax,
       maxPax,
-      pricePerPax,
     },
   });
 

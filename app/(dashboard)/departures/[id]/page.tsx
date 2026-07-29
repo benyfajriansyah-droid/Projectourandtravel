@@ -72,7 +72,9 @@ export default async function DepartureDetailPage({
         <p className="text-sm text-neutral-500">
           {departure.trip.destination} &middot; {activePax}/{departure.maxPax}{" "}
           peserta (min {departure.minPax}) &middot;{" "}
-          {formatCurrency(departure.pricePerPax)}/pax
+          {departure.pricePerPax === null
+            ? "Harga belum diisi"
+            : `${formatCurrency(departure.pricePerPax)}/pax`}
         </p>
       </div>
 
@@ -117,9 +119,15 @@ export default async function DepartureDetailPage({
           </CardHeader>
           <CardContent className="pt-0">
             <CardValue
-              className={summary.marginPerPax < 0 ? "text-red-600" : undefined}
+              className={
+                summary.marginPerPax !== null && summary.marginPerPax < 0
+                  ? "text-red-600"
+                  : undefined
+              }
             >
-              {formatCurrency(summary.marginPerPax)}
+              {summary.marginPerPax === null
+                ? "—"
+                : formatCurrency(summary.marginPerPax)}
             </CardValue>
           </CardContent>
         </Card>

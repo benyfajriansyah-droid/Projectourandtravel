@@ -64,105 +64,19 @@ export default async function EstimasiPage({
           {formatDate(departure.departureDate)} &ndash;{" "}
           {formatDate(departure.returnDate)}
         </p>
-      </div>
-
-      <Card>
-        <CardContent className="flex flex-wrap items-end gap-3 pt-4">
-          <form
-            action={updateDeparturePrice}
-            className="flex items-end gap-3"
-          >
-            <input type="hidden" name="departureId" value={departure.id} />
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-neutral-800">
-                Harga Jual / Peserta (Rp)
-              </label>
-              <Input
-                type="number"
-                name="pricePerPax"
-                min={0}
-                defaultValue={departure.pricePerPax}
-                className="w-40"
-              />
-            </div>
-            <Button type="submit" variant="outline">
-              Update Harga
-            </Button>
-          </form>
-          <p className="text-xs text-neutral-400">
-            Estimasi dihitung untuk {paxForEstimate} pax
-            {activePax === 0 ? " (asumsi minimum pax, belum ada peserta terdaftar)" : ""}.
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Biaya Flat</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue className="text-lg">
-              {formatCurrency(summary.totalFlat)}
-            </CardValue>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Variabel / Pax</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue className="text-lg">
-              {formatCurrency(summary.totalPerPaxUnit)}
-            </CardValue>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>HPP Total</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue className="text-lg">{formatCurrency(summary.hpp)}</CardValue>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Cost / Pax</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue className="text-lg">
-              {formatCurrency(summary.costPerPax)}
-            </CardValue>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Margin / Pax</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue
-              className={`text-lg ${summary.marginPerPax < 0 ? "text-red-600" : ""}`}
-            >
-              {formatCurrency(summary.marginPerPax)}
-            </CardValue>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>BEP Pax</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <CardValue className="text-lg">
-              {summary.bepPax === null ? "—" : Math.ceil(summary.bepPax)}
-            </CardValue>
-          </CardContent>
-        </Card>
+        <p className="mt-1 text-xs text-neutral-400">
+          Estimasi dihitung untuk {paxForEstimate} pax
+          {activePax === 0
+            ? " (asumsi minimum pax, belum ada peserta terdaftar)"
+            : ""}
+          .
+        </p>
       </div>
 
       <Card>
         <CardContent className="pt-4">
           <h2 className="mb-3 text-sm font-medium text-neutral-700">
-            Tambah Komponen Biaya
+            1. Tambah Komponen Biaya
           </h2>
           <CostComponentForm departureId={departure.id} />
         </CardContent>
@@ -217,6 +131,109 @@ export default async function EstimasiPage({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-sm font-medium text-neutral-700">
+          2. Total Biaya Trip
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Biaya Flat</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <CardValue className="text-lg">
+                {formatCurrency(summary.totalFlat)}
+              </CardValue>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Variabel / Pax</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <CardValue className="text-lg">
+                {formatCurrency(summary.totalPerPaxUnit)}
+              </CardValue>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>HPP Total</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <CardValue className="text-lg">
+                {formatCurrency(summary.hpp)}
+              </CardValue>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cost / Pax</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <CardValue className="text-lg">
+                {formatCurrency(summary.costPerPax)}
+              </CardValue>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="flex flex-wrap items-end gap-3 pt-4">
+          <form action={updateDeparturePrice} className="flex items-end gap-3">
+            <input type="hidden" name="departureId" value={departure.id} />
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-neutral-800">
+                3. Harga Jual / Peserta (Rp)
+              </label>
+              <Input
+                type="number"
+                name="pricePerPax"
+                min={0}
+                placeholder={`Cost/pax saat ini: ${formatCurrency(summary.costPerPax)}`}
+                defaultValue={departure.pricePerPax ?? undefined}
+                className="w-64"
+              />
+            </div>
+            <Button type="submit" variant="outline">
+              {departure.pricePerPax === null ? "Set Harga" : "Update Harga"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Margin / Pax</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <CardValue
+              className={`text-lg ${
+                summary.marginPerPax !== null && summary.marginPerPax < 0
+                  ? "text-red-600"
+                  : ""
+              }`}
+            >
+              {summary.marginPerPax === null
+                ? "Isi harga jual dulu"
+                : formatCurrency(summary.marginPerPax)}
+            </CardValue>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>BEP Pax</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <CardValue className="text-lg">
+              {summary.bepPax === null ? "—" : Math.ceil(summary.bepPax)}
+            </CardValue>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
