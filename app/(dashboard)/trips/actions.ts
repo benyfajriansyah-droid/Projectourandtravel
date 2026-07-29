@@ -8,6 +8,7 @@ import { isOneOf, TRIP_TYPES, DEPARTURE_STATUSES } from "@/lib/types";
 
 export interface FormState {
   error?: string;
+  success?: boolean;
 }
 
 export async function createTrip(
@@ -40,7 +41,7 @@ export async function createTrip(
   });
 
   revalidatePath("/trips");
-  return {};
+  return { success: true };
 }
 
 export async function createDeparture(
@@ -57,6 +58,9 @@ export async function createDeparture(
 
   if (!tripId || !departureDate || !returnDate) {
     return { error: "Tanggal keberangkatan & kepulangan wajib diisi." };
+  }
+  if (new Date(returnDate) < new Date(departureDate)) {
+    return { error: "Tanggal pulang tidak boleh sebelum tanggal berangkat." };
   }
   if (minPax < 1 || maxPax < minPax) {
     return { error: "Jumlah peserta min/maks tidak valid." };
@@ -92,4 +96,16 @@ export async function updateDepartureStatus(formData: FormData) {
 
   revalidatePath(`/departures/${departureId}`);
   if (tripId) revalidatePath(`/trips/${tripId}`);
+}
+
+export async function deleteTrip(formData: FormData) {
+  await requireRole(["ADMIN"]);
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  await prisma.trip.delete({ where: { id } });
+
+  revalidatePath("/trips");
+  redirect("/trips");
 }

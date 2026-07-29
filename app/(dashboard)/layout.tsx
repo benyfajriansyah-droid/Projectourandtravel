@@ -1,15 +1,15 @@
-import Link from "next/link";
 import { requireSession } from "@/lib/auth";
+import { getCompanyProfile } from "@/lib/settings";
 import { logoutAction } from "@/app/login/actions";
-import { Button } from "@/components/ui/button";
-import type { Role } from "@/lib/session";
-import { ROLE_LABEL } from "@/lib/labels";
+import { AppShell, type NavItem } from "@/components/app-shell";
+import { ToastProvider } from "@/components/ui/toast";
 
-const NAV_ITEMS: { href: string; label: string; roles?: Role[] }[] = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/trips", label: "Trip & Keberangkatan" },
-  { href: "/keuangan", label: "Keuangan", roles: ["ADMIN", "FINANCE"] },
-  { href: "/users", label: "Tim & User", roles: ["ADMIN"] },
+const NAV_ITEMS: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/trips", label: "Trip & Keberangkatan", icon: "trips" },
+  { href: "/keuangan", label: "Keuangan", icon: "wallet", roles: ["ADMIN", "FINANCE"] },
+  { href: "/users", label: "Tim & User", icon: "users", roles: ["ADMIN"] },
+  { href: "/pengaturan", label: "Pengaturan", icon: "settings", roles: ["ADMIN"] },
 ];
 
 export default async function DashboardLayout({
@@ -18,44 +18,23 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireSession();
+  const company = await getCompanyProfile();
+
   const items = NAV_ITEMS.filter(
     (item) => !item.roles || item.roles.includes(session.role)
   );
 
   return (
-    <div className="flex min-h-screen flex-1">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
-        <div className="border-b border-neutral-200 px-4 py-4">
-          <p className="text-sm font-semibold text-neutral-900">
-            Tour &amp; Travel Ops
-          </p>
-        </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block rounded-md px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-neutral-200 p-3">
-          <p className="truncate text-sm font-medium text-neutral-900">
-            {session.name}
-          </p>
-          <p className="mb-2 text-xs text-neutral-500">
-            {ROLE_LABEL[session.role]}
-          </p>
-          <form action={logoutAction}>
-            <Button type="submit" variant="outline" size="sm" className="w-full">
-              Keluar
-            </Button>
-          </form>
-        </div>
-      </aside>
-      <main className="flex-1 bg-neutral-50 p-6">{children}</main>
-    </div>
+    <ToastProvider>
+      <AppShell
+        items={items}
+        name={session.name}
+        role={session.role}
+        companyName={company.companyName}
+        logoutAction={logoutAction}
+      >
+        {children}
+      </AppShell>
+    </ToastProvider>
   );
 }

@@ -6,6 +6,7 @@ const PUBLIC_PATHS = ["/login"];
 
 const ROLE_RESTRICTED_PREFIXES: { prefix: string; roles: Role[] }[] = [
   { prefix: "/users", roles: ["ADMIN"] },
+  { prefix: "/pengaturan", roles: ["ADMIN"] },
   { prefix: "/keuangan", roles: ["ADMIN", "FINANCE"] },
 ];
 

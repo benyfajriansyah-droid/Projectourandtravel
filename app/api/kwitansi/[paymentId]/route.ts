@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCompanyProfile } from "@/lib/settings";
 import { formatDate } from "@/lib/utils";
 import { renderKwitansiPdf, type KwitansiData } from "@/lib/pdf/kwitansi-document";
 
@@ -11,13 +12,16 @@ export async function GET(
   await requireRole(["ADMIN", "FINANCE"]);
   const { paymentId } = await params;
 
-  const payment = await prisma.payment.findUnique({
-    where: { id: paymentId },
-    include: {
-      departure: { include: { trip: true } },
-      participant: true,
-    },
-  });
+  const [payment, company] = await Promise.all([
+    prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        departure: { include: { trip: true } },
+        participant: true,
+      },
+    }),
+    getCompanyProfile(),
+  ]);
 
   if (!payment) {
     return NextResponse.json(
@@ -40,7 +44,7 @@ export async function GET(
       : null,
   };
 
-  const buffer = await renderKwitansiPdf(data);
+  const buffer = await renderKwitansiPdf(data, company);
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

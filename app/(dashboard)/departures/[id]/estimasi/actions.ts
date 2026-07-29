@@ -7,6 +7,7 @@ import { isOneOf, COST_CATEGORIES, COST_UNITS } from "@/lib/types";
 
 export interface FormState {
   error?: string;
+  success?: boolean;
 }
 
 export async function addCostComponent(
@@ -41,7 +42,7 @@ export async function addCostComponent(
 
   revalidatePath(`/departures/${departureId}/estimasi`);
   revalidatePath(`/departures/${departureId}`);
-  return {};
+  return { success: true };
 }
 
 export async function deleteCostComponent(formData: FormData) {

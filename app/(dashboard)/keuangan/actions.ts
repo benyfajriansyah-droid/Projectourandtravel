@@ -7,6 +7,7 @@ import { isOneOf, TRANSACTION_TYPES } from "@/lib/types";
 
 export interface FormState {
   error?: string;
+  success?: boolean;
 }
 
 export async function createPayment(
@@ -22,12 +23,24 @@ export async function createPayment(
   const category = String(formData.get("category") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
   const departureId = String(formData.get("departureId") ?? "").trim();
+  const participantId = String(formData.get("participantId") ?? "").trim();
 
   if (!isOneOf(TRANSACTION_TYPES, type)) {
     return { error: "Jenis transaksi tidak valid." };
   }
   if (amount <= 0 || !date) {
     return { error: "Nominal dan tanggal wajib diisi dengan benar." };
+  }
+
+  // Peserta hanya valid bila benar-benar milik keberangkatan yang dipilih,
+  // supaya nama di kwitansi tidak tertukar.
+  let validParticipantId: string | null = null;
+  if (participantId && departureId) {
+    const participant = await prisma.participant.findFirst({
+      where: { id: participantId, departureId },
+      select: { id: true },
+    });
+    validParticipantId = participant?.id ?? null;
   }
 
   await prisma.payment.create({
@@ -39,12 +52,13 @@ export async function createPayment(
       category: category || null,
       note: note || null,
       departureId: departureId || null,
+      participantId: validParticipantId,
     },
   });
 
   revalidatePath("/keuangan");
   if (departureId) revalidatePath(`/departures/${departureId}`);
-  return {};
+  return { success: true };
 }
 
 export async function deletePayment(formData: FormData) {

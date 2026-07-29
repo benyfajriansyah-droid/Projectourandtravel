@@ -10,6 +10,7 @@ const ROLES = ["ADMIN", "FINANCE", "SALES", "OPERASIONAL"] as const;
 
 export interface FormState {
   error?: string;
+  success?: boolean;
 }
 
 export async function createUser(
@@ -45,7 +46,7 @@ export async function createUser(
   });
 
   revalidatePath("/users");
-  return {};
+  return { success: true };
 }
 
 export async function updateUserRole(formData: FormData) {

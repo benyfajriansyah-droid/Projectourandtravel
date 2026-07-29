@@ -7,6 +7,7 @@ import { isOneOf, PAYMENT_STATUSES } from "@/lib/types";
 
 export interface FormState {
   error?: string;
+  success?: boolean;
 }
 
 export async function createParticipant(
@@ -37,7 +38,7 @@ export async function createParticipant(
 
   revalidatePath(`/departures/${departureId}/peserta`);
   revalidatePath(`/departures/${departureId}`);
-  return {};
+  return { success: true };
 }
 
 export async function updateParticipantStatus(formData: FormData) {

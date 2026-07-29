@@ -2,19 +2,34 @@
 
 Sistem internal (back-office) untuk tim tour & travel: estimasi biaya
 keberangkatan otomatis (HPP, margin, BEP), manajemen peserta/booking,
-laporan keuangan (dengan export kwitansi PDF), dan dashboard ringkasan.
-Bukan marketplace publik — akun dibuat oleh admin untuk tim sendiri.
+laporan keuangan, dokumen cetak berlogo perusahaan, dan dashboard
+ringkasan. Bukan marketplace publik — akun dibuat oleh admin untuk tim
+sendiri.
+
+## Fitur Utama
+
+- **Kalkulator biaya keberangkatan** — input komponen biaya (flat /
+  per peserta), lalu HPP, cost per pax, margin, dan BEP dihitung otomatis
+- **Manajemen peserta** — data peserta, status DP/Lunas, pencarian
+- **Keuangan** — catat pemasukan/pengeluaran, laporan laba-rugi per trip
+  dan per bulan, riwayat transaksi
+- **Dokumen cetak** — kwitansi PDF (dengan terbilang) dan manifest peserta
+  PDF, keduanya memakai kop perusahaan dari menu Pengaturan
+- **Export Excel/CSV** — laporan keuangan bulanan dan daftar peserta
+- **Akses berbasis peran** — 4 role dengan hak berbeda
+- **Responsif** — tata letak khusus desktop dan mobile (sidebar jadi drawer,
+  tabel jadi kartu), sudah diuji di kedua ukuran layar
 
 ## Tech Stack
 
 - Next.js 16 (App Router) + TypeScript
-- Tailwind CSS v4 + komponen UI kecil buatan sendiri (pola shadcn/ui,
-  lihat `components/ui/`)
+- Tailwind CSS v4 + komponen UI buatan sendiri (pola shadcn/ui,
+  lihat `components/ui/`) — termasuk toast, dialog konfirmasi, skeleton
 - Prisma ORM 7 + **PostgreSQL** via driver adapter `@prisma/adapter-pg`
 - Auth berbasis session JWT (`jose`) + `proxy.ts` (pengganti middleware
   di Next 16) untuk proteksi route per role
-- Recharts untuk grafik tren keuangan
-- `@react-pdf/renderer` untuk export kwitansi PDF
+- Recharts (dimuat lazy) untuk grafik tren keuangan
+- `@react-pdf/renderer` untuk kwitansi & manifest PDF
 - Vitest untuk unit test logic bisnis (`lib/calculations.ts`, `lib/terbilang.ts`)
 
 ## Role
@@ -70,12 +85,33 @@ akun GitHub, tanpa setup server manual):
 
 ## Struktur Modul
 
-- `/trips` — Trip & jadwal keberangkatan
-- `/departures/[id]/estimasi` — Kalkulator estimasi biaya (HPP, margin, BEP)
-- `/departures/[id]/peserta` — Manajemen peserta & status pembayaran
-- `/keuangan` — Catat transaksi, laporan laba-rugi, & cetak kwitansi PDF
-  (`/api/kwitansi/[paymentId]`)
-- `/users` — Kelola akun tim & role (admin only)
+| Route | Fungsi |
+|---|---|
+| `/dashboard` | Ringkasan operasional + grafik tren keuangan |
+| `/trips` | Daftar & pencarian paket trip |
+| `/trips/[tripId]` | Detail trip + jadwal keberangkatan |
+| `/departures/[id]` | Ringkasan satu keberangkatan |
+| `/departures/[id]/estimasi` | Kalkulator biaya → HPP, margin, BEP |
+| `/departures/[id]/peserta` | Manajemen peserta & status pembayaran |
+| `/keuangan` | Transaksi + laporan laba-rugi bulanan |
+| `/users` | Kelola akun tim & role (admin) |
+| `/pengaturan` | Profil perusahaan untuk kop dokumen (admin) |
+
+Endpoint dokumen & export:
+
+| Endpoint | Hasil |
+|---|---|
+| `/api/kwitansi/[paymentId]` | Kwitansi PDF (A5) |
+| `/api/manifest/[departureId]` | Manifest peserta PDF (A4) |
+| `/api/export/keuangan?month=YYYY-MM` | Laporan keuangan CSV |
+| `/api/export/peserta/[departureId]` | Daftar peserta CSV |
+
+## Menyesuaikan Branding
+
+Menu **Pengaturan** (admin) mengisi nama perusahaan, alamat, kontak, dan
+catatan kaki. Data itu langsung dipakai di sidebar, halaman login, kwitansi,
+dan manifest — jadi satu instalasi bisa dipakai travel mana pun tanpa
+mengubah kode.
 
 ## Perintah Lain
 
@@ -89,8 +125,10 @@ npm run db:seed      # jalankan ulang seed admin
 
 ## Belum Ada (Roadmap)
 
+- Upload logo perusahaan (saat ini branding masih berupa teks)
+- Upload dokumen peserta (KTP/paspor)
+- Notifikasi/reminder pembayaran jatuh tempo
+- Mode gelap
 - Backup otomatis database (tergantung provider Postgres yang dipakai —
   sebagian besar seperti Prisma Postgres/Supabase/Neon sudah punya backup
   bawaan, tinggal diaktifkan)
-- Upload dokumen peserta (KTP/paspor)
-- Notifikasi/reminder pembayaran jatuh tempo

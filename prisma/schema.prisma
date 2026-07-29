@@ -145,3 +145,16 @@ model Vendor {
   contact  String?
   note     String?
 }
+
+/// Profil perusahaan (baris tunggal, id selalu "default").
+/// Dipakai untuk branding di sidebar, kwitansi, dan manifest.
+model Settings {
+  id          String   @id @default("default")
+  companyName String   @default("Tour & Travel Ops")
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  footerNote  String?
+  updatedAt   DateTime @updatedAt
+}
